@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ava's Daily Math</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#3b2a63; --muted:#7a6f98; --line:#eadffd;
+    --purple:#7c3aed; --purple-soft:#f1e8ff; --pink:#db2777; --pink-soft:#ffe3f1;
+    --teal:#0f9d8f; --teal-soft:#d4f5f0; --sun:#ffc857; --sun-soft:#fff3c9;
+    --good:#1c9c62; --good-soft:#dcf8e8; --oops:#c2570c; --oops-soft:#fff0df;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{background:#f4efff}
+  body{
+    font:17px/1.5 'Nunito',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); min-height:100vh;
+    background:
+      radial-gradient(900px 520px at 8% -8%, #ffe0f0 0%, transparent 60%),
+      radial-gradient(800px 480px at 100% 2%, #dfe6ff 0%, transparent 58%),
+      linear-gradient(180deg,#fff8fc 0%, #f4efff 100%);
+    background-repeat:no-repeat;
+  }
+  .deco{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+  .deco span{position:absolute;color:#d9c7ff;opacity:.55;font-size:28px;animation:floaty 7s ease-in-out infinite}
+  .deco span:nth-child(1){left:6%;top:18%;color:#ffc2e0}
+  .deco span:nth-child(2){left:90%;top:30%;animation-delay:-2s}
+  .deco span:nth-child(3){left:12%;top:72%;font-size:20px;animation-delay:-4s}
+  .deco span:nth-child(4){left:86%;top:78%;color:#ffe08a;animation-delay:-1s}
+  .deco span:nth-child(5){left:48%;top:92%;font-size:18px;color:#b9ece6;animation-delay:-3s}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(12deg)}}
+
+  header,main,.goalwrap{position:relative;z-index:1}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:740px;margin:0 auto;padding:14px 18px 8px}
+  .brand{display:flex;align-items:center;gap:8px;font:600 22px 'Fredoka',system-ui,sans-serif}
+  .brand .word{background:linear-gradient(90deg,#7c3aed,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hdr-right{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:700}
+  .pill{background:#fff;border:2px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px}
+  .timer{font-variant-numeric:tabular-nums}
+  .linkbtn{background:none;border:none;color:var(--muted);font:inherit;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;padding:2px}
+  .goalwrap{max-width:740px;margin:0 auto;padding:0 18px}
+  .goalbar{height:7px;border-radius:99px;background:#efe6ff;overflow:hidden}
+  #goalfill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff8fc7,#a78bfa,#2dd4bf);transition:width .6s ease}
+
+  main{max-width:740px;margin:0 auto;padding:14px 18px 56px}
+  .card{background:#fff;border:2px solid var(--line);border-radius:26px;padding:22px;box-shadow:0 12px 32px rgba(124,58,237,.10)}
+  .card.center{text-align:center;padding:30px 22px}
+  h1,h2{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;margin:0 0 8px;line-height:1.2}
+  h1{font-size:30px} h2{font-size:25px}
+  .muted{color:var(--muted)}
+  .chiprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{display:inline-block;font-size:13px;font-weight:800;color:#6d28d9;background:var(--purple-soft);border-radius:999px;padding:3px 12px}
+  .stars{font-size:14px;letter-spacing:1px;color:#f5a400}
+  .prompt{font:600 27px/1.3 'Fredoka',system-ui,sans-serif;margin:4px 0 6px}
+  .hint{font-size:15px;color:var(--muted);margin-bottom:14px;font-weight:700}
+  .choices{display:grid;gap:11px;margin-top:12px}
+  .choice{display:flex;align-items:center;gap:13px;text-align:left;width:100%;font:inherit;font-weight:800;font-size:20px;color:var(--ink);background:#fff;border:3px solid var(--line);border-radius:18px;padding:12px 14px;cursor:pointer;min-height:58px;transition:transform .12s, border-color .12s, background .12s}
+  .choice:hover:not(:disabled){transform:translateY(-2px);border-color:#c4a8ff;background:#fbf8ff}
+  .choice:active:not(:disabled){transform:translateY(0)}
+  .choice:focus-visible,.btn:focus-visible{outline:4px solid #c4b5fd;outline-offset:2px}
+  .choice:disabled{cursor:default}
+  .ltr{flex:0 0 auto;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:16px;display:grid;place-items:center;font-family:'Fredoka',system-ui,sans-serif}
+  .choice:nth-child(1) .ltr{background:#ffd3e8;color:#a3175f}
+  .choice:nth-child(2) .ltr{background:#c9f3ee;color:#0b6f66}
+  .choice:nth-child(3) .ltr{background:#ffeab0;color:#7a5600}
+  .choice:nth-child(4) .ltr{background:#e2d7ff;color:#5b21b6}
+  .choice.right{border-color:#38c486;background:var(--good-soft)}
+  .choice.right .ltr{background:var(--good);color:#fff}
+  .choice.wrong{border-color:#f5a04a;background:var(--oops-soft)}
+  .choice.wrong .ltr{background:var(--oops);color:#fff}
+
+  .fb{display:flex;gap:12px;align-items:flex-start;margin-top:18px;border-radius:20px;padding:14px 16px}
+  .fb.good{background:var(--good-soft);border:2px solid #b5ebcf}
+  .fb.oops{background:var(--oops-soft);border:2px solid #f6d3aa}
+  .fb .mascot{flex:0 0 auto;width:62px;height:62px}
+  .fb .txt{font-weight:700}
+  .fb b.t{display:block;font:600 19px 'Fredoka',system-ui,sans-serif;margin-bottom:2px}
+  .levelup{margin-top:10px;background:linear-gradient(90deg,#fff3c9,#ffe3f1);border:2px dashed #f5b942;border-radius:14px;padding:8px 12px;font-weight:800;font-size:15px}
+  .strategy{margin-top:14px;border:2px solid #f3e6b0;border-radius:20px;padding:14px 16px 8px;background:
+      repeating-linear-gradient(180deg,transparent 0,transparent 30px,#f6ecc4 31px) #fffdf1}
+  .strategy h3{margin:0 0 4px;font:600 19px 'Fredoka',system-ui,sans-serif;color:#7a5600}
+  .sol p{margin:8px 0;font-weight:700}
+  .box{display:inline-block;border:3px solid var(--purple);background:#fff;border-radius:10px;padding:0 9px;color:var(--purple)}
+  .model{display:block;width:100%;max-width:420px;height:auto;margin:10px 0 2px}
+  .cell{fill:#efe6ff;stroke:#8b5cf6;stroke-width:2.5;rx:8}
+  .lbl{font:600 18px 'Fredoka',system-ui,sans-serif;fill:#4c1d95}
+  .eq{font:700 14px 'Nunito',system-ui,sans-serif;fill:#5b4a8a}
+  .val{font:600 20px 'Fredoka',system-ui,sans-serif;fill:#3b2a63}
+  table.t{border-collapse:separate;border-spacing:0;margin:8px 0;font-size:16px;font-weight:700;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+  table.t th,table.t td{border:1px solid var(--line);padding:5px 12px;text-align:center;background:#fff}
+  table.t th{background:var(--purple-soft);color:#5b21b6}
+  .talk{margin-top:14px;font-size:15px;color:var(--muted);font-weight:700;background:var(--teal-soft);border-radius:14px;padding:8px 12px}
+  .talk b{color:#0b6f66}
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;line-height:1.1}
+  .frac .n{border-bottom:3px solid currentColor;padding:0 7px}
+  .frac .d{padding:0 7px}
+
+  .btn{font:600 18px 'Fredoka',system-ui,sans-serif;border-radius:16px;border:3px solid var(--line);background:#fff;color:var(--ink);padding:10px 22px;cursor:pointer;min-height:50px;transition:transform .12s, box-shadow .12s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.primary{background:linear-gradient(135deg,#7c3aed,#db2777);border-color:transparent;color:#fff;box-shadow:0 8px 18px rgba(219,39,119,.28)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .banner{background:linear-gradient(90deg,#fff3c9,#ffe3f1);border:2px solid #f5d27a;border-radius:18px;padding:12px 16px;margin-bottom:12px;font-size:15px;font-weight:800;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+  .stat{border-radius:18px;padding:12px 6px}
+  .stat:nth-child(1){background:var(--pink-soft)} .stat:nth-child(2){background:var(--teal-soft)} .stat:nth-child(3){background:var(--sun-soft)}
+  .stat .num{font:600 32px 'Fredoka',system-ui,sans-serif}
+  .stat .lab{font-size:13px;color:var(--muted);font-weight:800}
+  ul.topics{list-style:none;padding:0;margin:8px auto;text-align:left;max-width:440px}
+  ul.topics li{display:flex;justify-content:space-between;gap:10px;border-bottom:2px dotted var(--line);padding:7px 2px;font-size:15px;font-weight:700}
+  select{font:inherit;font-weight:700;font-size:15px;padding:9px 12px;border-radius:14px;border:3px solid var(--line);background:#fff;color:var(--ink);max-width:100%}
+  .big-mascot{width:104px;height:104px;margin:0 auto 6px;display:block;animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti i{position:absolute;top:22%;width:9px;height:14px;border-radius:3px;opacity:0;animation:fall 1.4s ease-out forwards}
+  @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),68vh) rotate(var(--rot));opacity:0}}
+  @media (prefers-reduced-motion: reduce){ .deco span,.big-mascot{animation:none} .choice,.btn{transition:none} }
+  @media (max-width:480px){ .prompt{font-size:23px} .choice{font-size:19px} h1{font-size:26px} .brand{font-size:19px} .fb .mascot{width:50px;height:50px} }
+</style>
+</head>
+<body>
+<div class="deco" aria-hidden="true"><span>✦</span><span>✧</span><span>●</span><span>✦</span><span>✧</span></div>
+<header>
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,5 39.94,23.08 59.58,25.04 44.84,38.17 49.05,57.46 32,47.5 14.95,57.46 19.16,38.17 4.42,25.04 24.06,23.08" fill="#ffd24d" stroke="#f59f00" stroke-width="3" stroke-linejoin="round"/></svg>
+    <span class="word">Ava's Math</span>
+  </div>
+  <div class="hdr-right">
+    <span id="stat" class="pill">⭐ 0 today</span>
+    <span class="pill timer" id="timer" title="Time left in today's 10 minutes">10:00</span>
+    <button type="button" class="linkbtn" id="pauseBtn" style="display:none">Pause</button>
+  </div>
+</header>
+<div class="goalwrap"><div class="goalbar" aria-hidden="true"><div id="goalfill"></div></div></div>
+<main id="main"></main>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+var DAILY_SECONDS = 600;
+var rand = function(a,b){ return Math.floor(Math.random()*(b-a+1))+a; };
+var pick = function(a){ return a[rand(0,a.length-1)]; };
+var shuffle = function(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=rand(0,i); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; };
+var fmt = function(n){ return Number(n).toLocaleString('en-US'); };
+var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var $ = function(id){ return document.getElementById(id); };
+var mmss = function(s){ s=Math.max(0,s); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+var lines = function(a){ return '<div class="sol">'+a.map(function(x){ return '<p>'+x+'</p>'; }).join('')+'</div>'; };
+var box = function(x){ return '<b class="box">'+x+'</b>'; };
+var frac = function(n,d){ return '<span class="frac"><span class="n">'+n+'</span><span class="d">'+d+'</span></span>'; };
+var sumArr = function(a){ return a.reduce(function(s,v){ return s+v; },0); };
+var gcd = function(a,b){ return b===0 ? a : gcd(b,a%b); };
+var stars = function(l){ return '★★★★'.slice(0,l)+'☆☆☆☆'.slice(0,4-l); };
+
+/* split a whole number into place-value parts: 3,407 -> [3000,400,7] (zeros skipped) */
+function parts(n){
+  var s=String(n), len=s.length, out=[];
+  for(var k=0;k<len;k++){ var d=+s.charAt(k); if(d>0) out.push(d*Math.pow(10,len-1-k)); }
+  return out;
+}
+function randNZ(len){ var s=''; for(var i=0;i<len;i++) s+=rand(1,9); return Number(s); }
+function randTwo(lo,hi){ return 10*rand(lo,hi)+rand(1,9); }   /* two-digit number, ones digit never 0 */
+function roundTo(n,p){ return Math.round(n/p)*p; }
+function floorTo(n,p){ return Math.floor(n/p)*p; }
+function placeName(p){ return p===10?'ten':(p===100?'hundred':'thousand'); }
+function roundLead(n){ var p=Math.pow(10,String(n).length-1); return roundTo(n,p); }
+
+/* "(20 × 10) + (20 × 4) + (3 × 10) + (3 × 4) = 200 + 80 + 30 + 12 = 322" */
+function partialLine(x,y,name){
+  var px=parts(x), py=parts(y), terms=[], vals=[];
+  px.forEach(function(p){ py.forEach(function(q){ terms.push('('+fmt(p)+' × '+fmt(q)+')'); vals.push(p*q); }); });
+  return (name?name+': ':'')+fmt(x)+' × '+fmt(y)+' = '+terms.join(' + ')+' = '+vals.map(fmt).join(' + ')+' = '+box(fmt(x*y));
+}
+
+function makeChoices(correctText, wrongs, fb){
+  var seen = new Set([correctText]);
+  var list = [{text:correctText, correct:true, why:''}];
+  wrongs.forEach(function(w){
+    if(list.length>=4 || seen.has(w.text)) return;
+    seen.add(w.text); list.push({text:w.text, correct:false, why:w.why});
+  });
+  if(fb){
+    [10,-10,1,-1,100,-100,2,-2,20,-20].forEach(function(d){
+      if(list.length>=4) return;
+      var v = fb.n + d; if(v<=0) return;
+      var t = fb.text(v); if(seen.has(t)) return;
+      seen.add(t);
+      list.push({text:t, correct:false, why:'Close, but check your arithmetic. Redo each step slowly and compare with the strategy below.'});
+    });
+  }
+  return shuffle(list);
+}
+
+/* area-model / array picture. aParts = rows (left side), bParts = columns (top) */
+function windowSVG(aParts, bParts){
+  var colW = bParts.map(function(bp,c){
+    var maxEq=0, maxVal=0;
+    aParts.forEach(function(ap){ maxEq=Math.max(maxEq,(fmt(ap)+' × '+fmt(bp)).length); maxVal=Math.max(maxVal,fmt(ap*bp).length); });
+    return Math.max(c===0?150:96, maxEq*8.6+24, maxVal*12.5+24);
+  });
+  var rowH = aParts.map(function(p,i){ return i===0?90:64; });
+  var maxLeft = 0; aParts.forEach(function(ap){ maxLeft=Math.max(maxLeft,fmt(ap).length); });
+  var x0 = Math.max(46, maxLeft*11+20), y0 = 32;
+  var W = x0 + sumArr(colW) + 10, H = y0 + sumArr(rowH) + 10;
+  var s = '<svg class="model" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Area model">';
+  var x = x0, y = y0, r, c;
+  for(c=0;c<bParts.length;c++){ s+='<text class="lbl" x="'+(x+colW[c]/2)+'" y="'+(y0-10)+'" text-anchor="middle">'+fmt(bParts[c])+'</text>'; x+=colW[c]; }
+  for(r=0;r<aParts.length;r++){ s+='<text class="lbl" x="'+(x0-10)+'" y="'+(y+rowH[r]/2+6)+'" text-anchor="end">'+fmt(aParts[r])+'</text>'; y+=rowH[r]; }
+  y = y0;
+  for(r=0;r<aParts.length;r++){
+    x = x0;
+    for(c=0;c<bParts.length;c++){
+      s+='<rect class="cell" x="'+x+'" y="'+y+'" width="'+colW[c]+'" height="'+rowH[r]+'" rx="8"/>';
+      s+='<text class="eq" x="'+(x+colW[c]/2)+'" y="'+(y+rowH[r]/2-3)+'" text-anchor="middle">'+fmt(aParts[r])+' × '+fmt(bParts[c])+'</text>';
+      s+='<text class="val" x="'+(x+colW[c]/2)+'" y="'+(y+rowH[r]/2+20)+'" text-anchor="middle">'+fmt(aParts[r]*bParts[c])+'</text>';
+      x+=colW[c];
+    }
+    y+=rowH[r];
+  }
+  return s+'</svg>';
+}
+
+/* friendly star mascot (an original drawing) */
+function mascot(mood, cls){
+  var mouth, brows = '';
+  if(mood==='cheer') mouth = '<path d="M25 37 Q32 50 39 37 Z" fill="#8a1f52"/>';
+  else if(mood==='think'){ mouth = '<path d="M27 41 Q32 38 37 41" stroke="#8a1f52" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+    brows = '<path d="M20 27 Q23 23 27 24 M44 27 Q41 23 37 24" stroke="#9a6a00" stroke-width="2.4" fill="none" stroke-linecap="round"/>'; }
+  else mouth = '<path d="M26 38 Q32 46 38 38" stroke="#8a1f52" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+  return '<svg class="'+(cls||'mascot')+'" viewBox="0 0 64 64" aria-hidden="true">'+
+    '<polygon points="32,5 39.94,23.08 59.58,25.04 44.84,38.17 49.05,57.46 32,47.5 14.95,57.46 19.16,38.17 4.42,25.04 24.06,23.08" fill="#ffd24d" stroke="#f59f00" stroke-width="2.6" stroke-linejoin="round"/>'+
+    '<circle cx="26" cy="31" r="2.6" fill="#3b2a63"/><circle cx="38" cy="31" r="2.6" fill="#3b2a63"/>'+
+    '<circle cx="22" cy="37" r="2.6" fill="#ff8fc7" opacity=".7"/><circle cx="42" cy="37" r="2.6" fill="#ff8fc7" opacity=".7"/>'+
+    brows+mouth+'</svg>';
+}
+
+/* ---------- question generators: each takes a level 1..4 ---------- */
+/* returns {topic, prompt(html), hint, choices, solution(html), expr?, answer?, verify?} */
+
+var ADDTAKE = {9:[10,-1],11:[10,1],19:[20,-1],21:[20,1],29:[30,-1],31:[30,1],49:[50,-1],51:[50,1],
+               99:[100,-1],101:[100,1],98:[100,-2],102:[100,2],198:[200,-2],202:[200,2]};
+function genAddTake(L){
+  var n, k;
+  if(L===1){ n=pick([9,9,11]); k=rand(3,9); }
+  else if(L===2){ n=pick([19,21,29,31]); k=rand(3,9); }
+  else if(L===3){ n=pick([99,99,101,49,51]); k=rand(6,19); }
+  else { n=pick([98,102,49,51,198,202]); k=rand(6,19); }
+  var B=ADDTAKE[n][0], d=ADDTAKE[n][1], g=Math.abs(d), ans=n*k, Bk=B*k, dk=g*k;
+  var down = d<0;
+  var grp = g===1 ? '1 group' : g+' groups';
+  var wrongs = [
+    {text:fmt(Bk), why:fmt(B)+' × '+k+' = '+fmt(Bk)+' is a great first step, but '+n+' is '+(g===1?'one group':g+' groups')+' '+(down?'fewer':'more')+' than '+B+'. You still need to '+(down?'take away ':'add ')+grp+' of '+k+'.'},
+    {text:fmt(Bk+d), why:'You '+(down?'took away ':'added ')+g+', but you need to '+(down?'take away ':'add ')+(g===1?'1 <b>group</b>':g+' <b>groups</b>')+' of '+k+', and that\'s '+dk+'.'},
+    {text:fmt(down?Bk+dk:Bk-dk), why:'You went the wrong way. '+n+' is '+(down?'less':'more')+' than '+B+', so '+(down?'take a group away':'add a group')+'.'}
+  ];
+  if(g>1) wrongs.push({text:fmt(Bk+(down?-k:k)), why:n+' is '+g+' groups '+(down?'fewer':'more')+' than '+B+', so you need '+g+' groups of '+k+' (that\'s '+dk+'), not just one.'});
+  var sol = ['I know '+fmt(B)+' × '+k+' = '+fmt(Bk),
+             'I\'ll '+(down?'take away ':'add ')+grp+' of '+k+' ('+n+' is '+(g===1?'one group':g+' groups')+' '+(down?'less':'more')+' than '+B+')'];
+  if(g>1) sol.push(g+' groups of '+k+' is '+g+' × '+k+' = '+dk);
+  sol.push(fmt(Bk)+(down?' − ':' + ')+fmt(dk)+' = '+fmt(ans));
+  sol.push('So, '+n+' × '+k+' = '+box(fmt(ans)));
+  return {topic:'addtake', prompt:n+' × '+k+' = ?', hint:'Try the add / take a group strategy.',
+          choices:makeChoices(fmt(ans), wrongs, {n:ans, text:fmt}), solution:lines(sol), expr:n+'*'+k, answer:ans};
+}
+
+var PV_KINDS = {1:[[1,0],[1,0],[1,1],[2,0]], 2:[[1,1],[2,0],[2,0],[3,0]], 3:[[2,1],[3,0],[3,1],[1,2]], 4:[[3,1],[2,2],[3,2],[4,1],[1,3]]};
+function genPlace(L){
+  var kind = pick(PV_KINDS[L]), p=kind[0], q=kind[1];
+  var A0=rand(2,9), B0=rand(2,9);
+  var a=A0*Math.pow(10,p), b=B0*Math.pow(10,q), base=A0*B0, ans=a*b, z=p+q;
+  var zs = z+' zero'+(z>1?'s':'');
+  var wrongs = [
+    {text:fmt(base), why:A0+' × '+B0+' = '+base+' is the helpful basic fact, but the zeros matter. Each factor of 10 makes the answer 10 times bigger.'},
+    {text:fmt(ans*10), why:'That\'s 10 times too big. Count the zeros again: '+fmt(a)+' × '+fmt(b)+' needs '+zs+' added to '+base+'.'},
+    {text:fmt(ans/10), why:'That\'s 10 times too small. You need '+zs+' after '+base+', and it looks like one is missing.'},
+    {text:fmt(ans*100), why:'That\'s 100 times too big. Check how many zeros you are adding.'}
+  ];
+  var sol = ['I know '+A0+' × '+B0+' = '+base];
+  if(p>0) sol.push('I know '+fmt(a)+' is '+fmt(Math.pow(10,p))+' times bigger than '+A0+'.');
+  if(q>0) sol.push('I know '+fmt(b)+' is '+fmt(Math.pow(10,q))+' times bigger than '+B0+'.');
+  sol.push('So I can do '+base+' × '+fmt(Math.pow(10,z))+(q>0?' (that\'s '+fmt(Math.pow(10,p))+' × '+fmt(Math.pow(10,q))+')':'')+' = '+fmt(ans));
+  sol.push('So, '+fmt(a)+' × '+fmt(b)+' = '+box(fmt(ans)));
+  return {topic:'placevalue', prompt:fmt(a)+' × '+fmt(b)+' = ?', hint:'Use place value relationships. Which basic fact can help?',
+          choices:makeChoices(fmt(ans), wrongs, {n:ans, text:fmt}), solution:lines(sol), expr:a+'*'+b, answer:ans};
+}
+
+function genDecompose(L){
+  var a=rand(3,9), b;
+  if(L===1) b=randTwo(1,2); else if(L===2) b=randTwo(3,9); else if(L===3) b=randNZ(3); else b=randNZ(4);
+  var pb=parts(b), n=pb.length, pr=pb.map(function(v){ return a*v; }), ans=a*b;
+  var last=pb[n-1], lastP=pr[n-1], first=pb[0], firstP=pr[0];
+  var headSum=sumArr(pr.slice(0,n-1));
+  var wrongs = [
+    {text:fmt(headSum+last), why:'You multiplied '+a+' by the bigger parts, but the last part ('+fmt(last)+') also needs to be multiplied by '+a+': '+a+' × '+fmt(last)+' = '+fmt(lastP)+'.'},
+    {text:fmt(headSum), why:'That\'s missing '+a+' × '+fmt(last)+' = '+fmt(lastP)+'. Every part of the decomposed factor needs to be multiplied.'},
+    {text:fmt(ans-firstP+a*first/10), why:'The first part of '+fmt(b)+' is really '+fmt(first)+' (look at its place value). '+a+' × '+fmt(first)+' = '+fmt(firstP)+', not '+fmt(a*first/10)+'.'}
+  ];
+  if(n>=3) wrongs.push({text:fmt(ans-pr[1]), why:'The '+fmt(pb[1])+' part is missing: '+a+' × '+fmt(pb[1])+' = '+fmt(pr[1])+'. Multiply the other factor to <b>all</b> of the parts.'});
+  var sol = ['<b>1.</b> Decompose, or break apart one factor: '+fmt(b)+' = '+pb.map(fmt).join(' + '),
+             '<b>2.</b> Multiply the other factor to <b>all</b> of the decomposed numbers: '+pb.map(function(v){ return '('+a+' × '+fmt(v)+')'; }).join(' + '),
+             pr.map(fmt).join(' + '),
+             '= '+box(fmt(ans)),
+             windowSVG([a], pb)];
+  return {topic:'decompose', prompt:a+' × '+fmt(b)+' = ?', hint:'Use the strategy: decompose a factor (distributive property).',
+          choices:makeChoices(fmt(ans), wrongs, {n:ans, text:fmt}), solution:lines(sol), expr:a+'*'+b, answer:ans};
+}
+
+function genWindow(L){
+  var a, b;
+  if(L===1){ a=randTwo(1,2); b=randTwo(1,2); }
+  else if(L===2){ a=randTwo(2,5); b=randTwo(2,5); }
+  else if(L===3){ a=randTwo(3,9); b=randTwo(3,9); }
+  else { a=randNZ(3); b=randTwo(2,9); }
+  var pa=parts(a), pb=parts(b), R=pa.length, C=pb.length, ans=a*b;
+  var grid=pa.map(function(x){ return pb.map(function(y){ return x*y; }); });
+  var all=[]; grid.forEach(function(row,r){ row.forEach(function(v,c){ all.push({r:r,c:c,v:v}); }); });
+  var small=grid[R-1][C-1], big=grid[0][0];
+  var cross=all.filter(function(o){ return !(o.r===0&&o.c===0) && !(o.r===R-1&&o.c===C-1); });
+  var cb=pick(cross), diag=0, i;
+  for(i=0;i<Math.min(R,C);i++) diag+=grid[i][i];
+  var wrongs = [
+    {text:fmt(ans-small), why:'You found most of the boxes, but the ones × ones box is missing: '+fmt(pa[R-1])+' × '+fmt(pb[C-1])+' = '+fmt(small)+'.'},
+    {text:fmt(ans-cb.v), why:'One box is missing: '+fmt(pa[cb.r])+' × '+fmt(pb[cb.c])+' = '+fmt(cb.v)+'. Every box in the window counts. This window has '+(R*C)+' boxes.'},
+    {text:fmt(ans-big+big/10), why:'Check the biggest box: '+fmt(pa[0])+' × '+fmt(pb[0])+' = '+fmt(big)+', not '+fmt(big/10)+'. Count the zeros again.'},
+    {text:fmt(diag), why:'That\'s only some of the boxes. All '+(R*C)+' boxes get added.'}
+  ];
+  var vals=[]; grid.forEach(function(row){ row.forEach(function(v){ vals.push(fmt(v)); }); });
+  var sol = ['<b>1.</b> Write both factors in expanded form: ('+pa.map(fmt).join(' + ')+') × ('+pb.map(fmt).join(' + ')+')',
+             '<b>2.</b> Draw an area model (a window) and label each side.',
+             '<b>3.</b> Multiply to find the area of each part.',
+             windowSVG(pa,pb),
+             '<b>4.</b> Add all the partial products: '+vals.join(' + ')+' = '+box(fmt(ans))];
+  return {topic:'window', prompt:fmt(a)+' × '+fmt(b)+' = ?', hint:'Use the window method (area model).',
+          choices:makeChoices(fmt(ans), wrongs, {n:ans, text:fmt}), solution:lines(sol), expr:a+'*'+b, answer:ans};
+}
+
+function genEstimate(L){
+  var pa,pb,a,b,tries=0;
+  do {
+    tries++;
+    if(L===1){ pa=10; pb=10; a=rand(23,78); b=rand(21,69); }
+    else if(L===2){ pa=100; pb=10; a=rand(101,999); b=rand(21,99); }
+    else if(L===3){ pa=1000; pb=10; a=rand(1101,9899); b=rand(21,99); }
+    else { pa=100; pb=100; a=rand(101,999); b=rand(101,999); }
+  } while(tries<200 && (a%pa===0 || b%pb===0 || floorTo(a,pa)*floorTo(b,pb)===roundTo(a,pa)*roundTo(b,pb)));
+  var ra=roundTo(a,pa), rb=roundTo(b,pb), E=ra*rb, fa=floorTo(a,pa), fb=floorTo(b,pb);
+  var upMsg = ra>fa ? fmt(a)+' rounds <b>up</b> to '+fmt(ra)+' because it\'s closer to '+fmt(ra)+' than to '+fmt(fa)+'.'
+                    : fmt(b)+' rounds <b>up</b> to '+fmt(rb)+' because it\'s closer to '+fmt(rb)+' than to '+fmt(fb)+'.';
+  var base=(ra/pa)*(rb/pb);
+  var wrongs = [
+    {text:'about '+fmt(fa*fb), why:'Remember to round to the <b>nearest</b> place, not always down. '+upMsg},
+    {text:'about '+fmt(E*10), why:'Check the zeros: '+fmt(ra)+' × '+fmt(rb)+' = '+fmt(E)+', so '+fmt(E*10)+' is 10 times too big.'},
+    {text:'about '+fmt(ra+rb), why:'That\'s '+fmt(ra)+' + '+fmt(rb)+'. The problem is multiplication, so multiply the rounded numbers.'}
+  ];
+  var sol = ['Round '+fmt(a)+' to the nearest '+placeName(pa)+': '+fmt(ra)+'. Round '+fmt(b)+' to the nearest '+placeName(pb)+': '+fmt(rb)+'.',
+             'Use a basic fact: '+fmt(ra/pa)+' × '+fmt(rb/pb)+' = '+fmt(base),
+             'Then use place value: '+fmt(ra)+' × '+fmt(rb)+' = '+fmt(E),
+             'So '+fmt(a)+' × '+fmt(b)+' is about '+box(fmt(E))];
+  return {topic:'estimate', prompt:'Estimate '+fmt(a)+' × '+fmt(b)+'.', hint:'Round '+fmt(a)+' to the nearest '+placeName(pa)+' and '+fmt(b)+' to the nearest '+placeName(pb)+'.',
+          choices:makeChoices('about '+fmt(E), wrongs, {n:E, text:function(v){ return 'about '+fmt(v); }}), solution:lines(sol), expr:ra+'*'+rb, answer:E};
+}
+
+function genReasonable(L){
+  var a, b;
+  if(L===1){ a=randTwo(1,4); b=randTwo(1,4); }
+  else if(L===2){ a=randTwo(3,9); b=randTwo(3,9); }
+  else if(L===3){ a=rand(3,9); b=randNZ(3); }
+  else { a=randNZ(3); b=randTwo(2,9); }
+  var P=a*b, ra=roundLead(a), rb=roundLead(b), E=ra*rb;
+  var wrongs = [
+    {text:fmt(P*10), why:'Too big. '+fmt(ra)+' × '+fmt(rb)+' is about '+fmt(E)+', so '+fmt(P*10)+' is about 10 times too large.'},
+    {text:fmt(Math.round(P/10)), why:'Too small. '+fmt(ra)+' × '+fmt(rb)+' is about '+fmt(E)+', so '+fmt(Math.round(P/10))+' is about 10 times too small.'},
+    {text:fmt(a+b), why:'That\'s '+fmt(a)+' + '+fmt(b)+'. We are multiplying, and '+fmt(a)+' × '+fmt(b)+' is much bigger than '+fmt(a+b)+'.'},
+    {text:fmt(P*100), why:'Way too big. '+fmt(ra)+' × '+fmt(rb)+' is only about '+fmt(E)+'.'}
+  ];
+  var sol = ['Estimate first: '+fmt(a)+' is about '+fmt(ra)+' and '+fmt(b)+' is about '+fmt(rb)+'.',
+             fmt(ra)+' × '+fmt(rb)+' = '+fmt(E)+', so the answer should be close to '+fmt(E)+'.',
+             'The answer that makes sense is '+box(fmt(P)),
+             'Check it: '+partialLine(a,b)];
+  return {topic:'reasonable', prompt:'Which answer makes sense for '+fmt(a)+' × '+fmt(b)+'?', hint:'Estimate first by rounding each number.',
+          choices:makeChoices(fmt(P), wrongs, null), solution:lines(sol), expr:a+'*'+b, answer:P};
+}
+
+var PLACE_NAMES = {'-3':'thousandths','-2':'hundredths','-1':'tenths','0':'ones','1':'tens','2':'hundreds','3':'thousands','4':'ten thousands','5':'hundred thousands','6':'millions'};
+function valStr(d,i){ return i>=0 ? fmt(d*Math.pow(10,i)) : (d/Math.pow(10,-i)).toFixed(-i); }
+function digitsWithZeros(len,minZ,maxZ,lastNZ){
+  var d, z;
+  do {
+    d=[]; z=0;
+    for(var k=0;k<len;k++){ var v=(k===0||(lastNZ&&k===len-1))?rand(1,9):rand(0,9); if(v===0) z++; d.push(v); }
+  } while(z<minZ || z>maxZ);
+  return d;
+}
+function genExpanded(L){
+  var digits, intLen, decLen=0;
+  if(L===1){ intLen=pick([5,6]); digits=digitsWithZeros(intLen,0,0,false); }
+  else if(L===2){ intLen=6; digits=digitsWithZeros(intLen,1,2,false); }
+  else if(L===3){ intLen=7; digits=digitsWithZeros(intLen,1,3,false); }
+  else { intLen=rand(2,3); decLen=pick([2,3]); digits=digitsWithZeros(intLen+decLen,0,1,true); }
+  var spec = digits.map(function(d,k){ return {d:d, i:intLen-1-k}; });
+  var intStr = digits.slice(0,intLen).join(''), decStr = digits.slice(intLen).join('');
+  var numStr = fmt(Number(intStr))+(decStr?'.'+decStr:'');
+  var value = parseFloat(intStr+(decStr?'.'+decStr:''));
+  var nz = spec.filter(function(p){ return p.d>0; });
+  var hasZero = spec.some(function(p){ return p.d===0; });
+  var minI = decLen ? -3 : 0;
+  var correct = nz.map(function(p){ return valStr(p.d,p.i); }).join(' + ');
+  var cands = [];
+  nz.forEach(function(p,k){ if(p.i-1>=minI) cands.push({k:k,dir:-1}); if(p.i+1<=6) cands.push({k:k,dir:1}); });
+  var wrongs = shuffle(cands).slice(0,5).map(function(c){
+    var p = nz[c.k];
+    return {text:nz.map(function(q,j){ return j===c.k ? valStr(q.d,q.i+c.dir) : valStr(q.d,q.i); }).join(' + '),
+            why:'The digit '+p.d+' is in the '+PLACE_NAMES[p.i]+' place, so it\'s worth '+valStr(p.d,p.i)+', not '+valStr(p.d,p.i+c.dir)+'.'};
+  });
+  var rows = nz.map(function(p){ return '<tr><td>'+p.d+'</td><td>'+PLACE_NAMES[p.i]+'</td><td>'+valStr(p.d,p.i)+'</td></tr>'; }).join('');
+  var sol = ['Look at the place value of each digit:',
+             '<table class="t"><tr><th>Digit</th><th>Place</th><th>Value</th></tr>'+rows+'</table>'];
+  if(hasZero) sol.push('A zero means nothing is in that place, so we skip it.');
+  sol.push('Add the values: '+box(correct));
+  var verify = function(t){ return Math.abs(t.split(' + ').map(function(s){ return parseFloat(s.replace(/,/g,'')); }).reduce(function(x,y){ return x+y; },0) - value) < 1e-9; };
+  return {topic:'expanded', prompt:'Write '+numStr+' in expanded form.', hint:'Think about the place value of each digit.',
+          choices:makeChoices(correct, wrongs, null), solution:lines(sol), answer:value, verify:verify};
+}
+
+function genRatio(L){
+  var animal = pick(['a rabbit','a kangaroo','a zebra','an ostrich','a hare']);
+  var r, T, ans, sol, wrongs, prompt, expr, fbn=null;
+  if(L===1){ T=30; r=rand(6,24); }
+  else if(L===2){ T=pick([20,40,50,60]); r=rand(7,39); }
+  else if(L===3){ T=pick([15,25,35,45]); r=2*rand(4,19); }
+  else { T=pick([20,30,40,50,60]); r=rand(12,45); }
+  if(L<=3){
+    ans=T*r; expr=T+'*'+r; fbn={n:ans,text:fmt};
+    prompt='Suppose '+animal+' travels '+r+' feet every second. How far does it travel in '+T+' seconds?';
+    if(L<=2){
+      wrongs=[
+        {text:fmt(10*r), why:'That\'s only the distance for 10 seconds. You need '+T+' seconds, which is '+(T/10)+' groups of 10 seconds.'},
+        {text:fmt(r*(T/10)), why:'You used the number of 10-second groups ('+(T/10)+'). Multiply the distance for 10 seconds ('+fmt(10*r)+') by that number.'},
+        {text:fmt(r+T), why:'That\'s '+r+' + '+T+'. In a ratio table you <b>multiply</b> both numbers by the same amount.'},
+        {text:fmt(ans*10), why:'That\'s 10 times too big. Check how many seconds you are using.'}
+      ];
+      sol=['Start with what we know and build a ratio table:',
+           '<table class="t"><tr><th>Seconds</th><td>1</td><td>10</td><td>'+T+'</td></tr><tr><th>Feet</th><td>'+r+'</td><td>'+fmt(10*r)+'</td><td>'+fmt(ans)+'</td></tr></table>',
+           '1 second → 10 seconds: multiply by 10, so '+r+' × 10 = '+fmt(10*r),
+           '10 seconds → '+T+' seconds: multiply by '+(T/10)+', so '+fmt(10*r)+' × '+(T/10)+' = '+box(fmt(ans))+' feet'];
+    } else {
+      wrongs=[
+        {text:fmt(10*r), why:'That\'s only the distance for 10 seconds. You need '+T+' seconds.'},
+        {text:fmt((T-5)*r), why:'That\'s the distance for '+(T-5)+' seconds. Don\'t forget the extra 5 seconds: '+fmt(5*r)+' feet.'},
+        {text:fmt(r+T), why:'That\'s '+r+' + '+T+'. In a ratio table you <b>multiply</b> both numbers by the same amount.'},
+        {text:fmt(5*r), why:'That\'s only the distance for 5 seconds. You need '+T+' seconds.'}
+      ];
+      sol=['Build a ratio table. 10 seconds and 5 seconds are easy rows to make:',
+           '<table class="t"><tr><th>Seconds</th><td>1</td><td>10</td><td>5</td><td>'+(T-5)+'</td><td>'+T+'</td></tr><tr><th>Feet</th><td>'+r+'</td><td>'+fmt(10*r)+'</td><td>'+fmt(5*r)+'</td><td>'+fmt((T-5)*r)+'</td><td>'+fmt(ans)+'</td></tr></table>',
+           '1 → 10 seconds: ×10, so '+fmt(10*r)+' feet. 5 seconds is half of that: '+fmt(5*r)+' feet.',
+           T+' seconds = '+(T-5)+' seconds + 5 seconds: '+fmt((T-5)*r)+' + '+fmt(5*r)+' = '+box(fmt(ans))+' feet'];
+    }
+  } else {
+    var D=r*T; ans=T; expr=D+'/'+r; fbn={n:ans,text:fmt};
+    prompt='Suppose '+animal+' travels '+r+' feet every second. How many seconds does it take to travel '+fmt(D)+' feet?';
+    wrongs=[
+      {text:fmt(T/10), why:'That\'s the number of 10-second rows ('+(T/10)+'). Each row is 10 seconds, so multiply by 10.'},
+      {text:fmt(T*10), why:'That\'s 10 times too many seconds. Check how many 10-second rows you need.'},
+      {text:fmt(T+10), why:'Close! You counted one row too many. '+(T/10)+' rows of 10 seconds is '+T+' seconds.'},
+      {text:fmt(T-10), why:'Close! You counted one row too few. '+fmt(D)+' feet needs '+(T/10)+' rows of '+fmt(10*r)+' feet.'}
+    ];
+    sol=['Build a ratio table:',
+         '<table class="t"><tr><th>Seconds</th><td>1</td><td>10</td><td>'+T+'</td></tr><tr><th>Feet</th><td>'+r+'</td><td>'+fmt(10*r)+'</td><td>'+fmt(D)+'</td></tr></table>',
+         'In 10 seconds it travels '+r+' × 10 = '+fmt(10*r)+' feet.',
+         fmt(D)+' ÷ '+fmt(10*r)+' = '+(T/10)+' rows of 10 seconds',
+         (T/10)+' × 10 = '+box(T)+' seconds'];
+  }
+  return {topic:'ratio', prompt:prompt, hint:'Make a ratio table.', choices:makeChoices(fmt(ans), wrongs, fbn), solution:lines(sol), expr:expr, answer:ans};
+}
+
+function genWord(L){
+  var names = shuffle(['Maya','Liam','Noor','Theo','Sofia','Jonah','Priya','Ben']).slice(0,2);
+  var thing = pick([['bags','marbles'],['boxes','crayons'],['packs','stickers'],['jars','buttons']]);
+  var n1=names[0], n2=names[1], t0=thing[0], t1=thing[1];
+  var a,b,c,d,P1,P2,ans,wrongs,sol,prompt,expr,g,rich,poor;
+  if(L<=2){
+    a=rand(3,9); c=rand(3,9);
+    if(L===1){ b=rand(12,19); d=rand(12,19); } else { b=rand(21,49); d=rand(21,49); }
+    P1=a*b; P2=c*d; ans=P1+P2;
+    prompt=n1+' has '+a+' '+t0+' with '+b+' '+t1+' in each. '+n2+' has '+c+' '+t0+' with '+d+' '+t1+' in each. How many '+t1+' do they have together?';
+    wrongs=[
+      {text:fmt(P1), why:'That\'s only '+n1+'\'s '+t1+'. The question asks how many they have <b>together</b>.'},
+      {text:fmt(P2), why:'That\'s only '+n2+'\'s '+t1+'. The question asks how many they have <b>together</b>.'},
+      {text:fmt(a+b+c+d), why:'You added all four numbers. Each person has '+t0+' <b>with</b> '+t1+' in each one, so multiply first, then add.'}
+    ];
+    sol=[partialLine(a,b,n1), partialLine(c,d,n2), 'Together: '+fmt(P1)+' + '+fmt(P2)+' = '+box(fmt(ans))];
+    expr=a+'*'+b+'+'+c+'*'+d;
+  } else if(L===3){
+    a=rand(12,29); b=rand(12,29); P1=a*b; g=rand(40,150);
+    ans=P1-g;
+    prompt=n1+' has '+a+' '+t0+' with '+b+' '+t1+' in each. '+n1+' gives '+g+' '+t1+' to '+n2+'. How many '+t1+' does '+n1+' have left?';
+    wrongs=[
+      {text:fmt(P1), why:'That\'s how many '+n1+' started with. Don\'t forget to take away the '+g+' '+n1+' gave to '+n2+'.'},
+      {text:fmt(P1+g), why:'You added the '+g+'. '+n1+' <b>gave away</b> '+t1+', so subtract.'},
+      {text:fmt(a+b-g), why:'You added '+a+' + '+b+'. Each of the '+a+' '+t0+' has '+b+' '+t1+', so multiply first.'}
+    ];
+    sol=[partialLine(a,b,n1+' started with'), 'Gave away '+g+': '+fmt(P1)+' − '+g+' = '+box(fmt(ans))];
+    expr=a+'*'+b+'-'+g;
+  } else {
+    do { a=rand(12,39); b=rand(12,39); c=rand(12,39); d=rand(12,39); P1=a*b; P2=c*d; } while(Math.abs(P1-P2)<20);
+    rich = P1>P2 ? n1 : n2; poor = P1>P2 ? n2 : n1;
+    ans=Math.abs(P1-P2);
+    prompt=n1+' has '+a+' '+t0+' with '+b+' '+t1+' in each. '+n2+' has '+c+' '+t0+' with '+d+' '+t1+' in each. How many more '+t1+' does '+rich+' have than '+poor+'?';
+    wrongs=[
+      {text:fmt(P1+P2), why:'That\'s how many they have together. The question asks <b>how many more</b>, so subtract.'},
+      {text:fmt(Math.max(P1,P2)), why:'That\'s all of '+rich+'\'s '+t1+'. To find <b>how many more</b>, subtract '+poor+'\'s '+t1+'.'},
+      {text:fmt(Math.min(P1,P2)), why:'That\'s all of '+poor+'\'s '+t1+'. Find '+rich+'\'s total too, then subtract.'}
+    ];
+    sol=[partialLine(a,b,n1), partialLine(c,d,n2), 'How many more: '+fmt(Math.max(P1,P2))+' − '+fmt(Math.min(P1,P2))+' = '+box(fmt(ans))];
+    expr='Math.abs('+a+'*'+b+'-'+c+'*'+d+')';
+  }
+  return {topic:'word', prompt:prompt, hint:'Work it out one step at a time.', choices:makeChoices(fmt(ans), wrongs, {n:ans, text:fmt}), solution:lines(sol), expr:expr, answer:ans};
+}
+
+/* fractions: L1 equivalent, L2 simplify, L3 compare, L4 add unlike denominators */
+function genFrac(L){
+  var num, den, m, den2, ans, wrongs, sol, prompt, verify, correct, hint;
+  if(L===1){
+    den=pick([2,3,4,5,6,8,10]); num=rand(1,den-1); m=rand(2,5); den2=den*m; ans=num*m;
+    wrongs=[
+      {text:fmt(num+(den2-den)), why:'You added '+(den2-den)+' to the bottom and to the top. To keep a fraction equal, <b>multiply</b> the top and bottom by the same number.'},
+      {text:fmt(num), why:'If the top stays '+num+' while the bottom gets bigger, the fraction gets smaller. Multiply the top by '+m+' too.'},
+      {text:fmt(m), why:m+' is how many times bigger the bottom got. Multiply the top ('+num+') by '+m+'.'}
+    ];
+    sol=['The bottom changed: '+den+' × '+m+' = '+den2, 'So multiply the top by '+m+' too: '+num+' × '+m+' = '+box(ans), frac(num,den)+' = '+frac(ans,den2)];
+    prompt=frac(num,den)+' = '+frac('?',den2); hint='What was the bottom number multiplied by?';
+    correct=fmt(ans); verify=function(t){ return Number(t)*den===num*den2; };
+  } else if(L===2){
+    den=pick([2,3,4,5,6,8]); num=rand(1,den-1); m=rand(2,6); den2=den*m; var top=num*m; ans=num;
+    wrongs=[
+      {text:fmt(top), why:'If the top stays '+top+' while the bottom gets smaller, the fraction gets bigger. Divide the top by '+m+' too.'},
+      {text:fmt(top-(den2-den)), why:'You subtracted '+(den2-den)+' from the top and bottom. To keep a fraction equal, <b>divide</b> both by the same number.'},
+      {text:fmt(m), why:m+' is what you divided the bottom by. Divide the top ('+top+') by '+m+' too.'}
+    ].filter(function(w){ return Number(w.text.replace(/,/g,''))>0; });
+    sol=['The bottom changed: '+den2+' ÷ '+m+' = '+den, 'So divide the top by '+m+' too: '+top+' ÷ '+m+' = '+box(ans), frac(top,den2)+' = '+frac(ans,den)];
+    prompt=frac(top,den2)+' = '+frac('?',den); hint='What was the bottom number divided by?';
+    correct=fmt(ans); verify=function(t){ return Number(t)*den2===top*den; };
+  } else if(L===3){
+    var den1=pick([2,3,4,5,6,10]); m=pick([2,3,4]); den2=den1*m;
+    var a=rand(1,den1-1), b=rand(1,den2-1);
+    while(a*m===b) b=rand(1,den2-1);
+    var tA=a+'/'+den1, tB=b+'/'+den2, aBig=a*m>b;
+    correct = aBig ? tA : tB;
+    var other = aBig ? tB : tA;
+    var how = 'Make the bottoms match: '+tA+' = '+(a*m)+'/'+den2+'. Then compare the tops: '+(a*m)+' and '+b+'.';
+    wrongs=[{text:other, why:how+' A bigger bottom number means smaller pieces, so it doesn\'t decide which is greater.'},
+            {text:'They are equal', why:'They are not equal. '+how}];
+    sol=['Make the bottoms match: '+den1+' × '+m+' = '+den2+', so '+frac(a,den1)+' = '+frac(a*m,den2),
+         'Now compare the tops: '+(a*m)+' and '+b+'.',
+         'The greater fraction is '+box(correct)];
+    var swap = Math.random()<0.5;
+    prompt='Which is greater: '+(swap?frac(b,den2):frac(a,den1))+' or '+(swap?frac(a,den1):frac(b,den2))+'?';
+    hint='Give both fractions the same bottom number.';
+    verify=function(t){ return t===correct; };
+    return {topic:'fractions', prompt:prompt, hint:hint, choices:makeChoices(correct, wrongs, null), solution:lines(sol), verify:verify, answer:correct};
+  } else {
+    var d1, a2, c2, n2, dd;
+    do { d1=pick([2,3,4,5,6,10]); m=pick([2,3,4,5]); den2=d1*m; a2=rand(1,d1-1); c2=rand(1,den2-1); n2=a2*m+c2; dd=den2; }
+    while(n2>=dd || gcd(n2,dd)!==1);
+    correct=n2+'/'+dd;
+    var raw=[[a2+c2,d1+den2,'You added the tops and the bottoms. When you add fractions, the pieces have to be the same size first, and the bottom stays the same.'],
+             [a2+c2,den2,'You added the tops, but '+a2+'/'+d1+' needs to be renamed with '+den2+' on the bottom first.'],
+             [a2+c2,d1,'You added the tops, but the pieces are different sizes. Rename '+a2+'/'+d1+' as '+(a2*m)+'/'+den2+' first.'],
+             [a2*m+c2,d1,'You renamed the top, but the bottom must change too: '+d1+' × '+m+' = '+den2+'.']];
+    wrongs=raw.filter(function(w){ return w[0]*dd!==n2*w[1]; }).map(function(w){ return {text:w[0]+'/'+w[1], why:w[2]}; });
+    sol=['Rename '+frac(a2,d1)+' so the bottoms match: '+d1+' × '+m+' = '+den2+', so '+frac(a2,d1)+' = '+frac(a2*m,den2),
+         'Add the tops: '+(a2*m)+' + '+c2+' = '+n2,
+         frac(a2*m,den2)+' + '+frac(c2,den2)+' = '+box(correct)];
+    prompt=frac(a2,d1)+' + '+frac(c2,den2)+' = ?'; hint='Make the bottom numbers match first.';
+    verify=function(t){ return t===correct; };
+    return {topic:'fractions', prompt:prompt, hint:hint, choices:makeChoices(correct, wrongs, null), solution:lines(sol), verify:verify, answer:correct};
+  }
+  return {topic:'fractions', prompt:prompt, hint:hint, choices:makeChoices(correct, wrongs, {n:ans, text:fmt}), solution:lines(sol), verify:verify, answer:ans};
+}
+
+/* decimals: L1 compare, L2 fraction to decimal, L3 add, L4 subtract from a whole */
+function revDigits(n){ return Number(String(n).split('').reverse().join('')); }
+function genDecimal(L){
+  var correct, wrongs, sol, prompt, hint, verify;
+  if(L===1){
+    var t=rand(1,9), h; do { h=rand(11,99); } while(h%10===0);
+    var x=t/10, y=h/100, xs=x.toFixed(1), ys=y.toFixed(2), xh=x.toFixed(2), xBigger=x>y;
+    var first=Math.random()<0.5?[xs,ys]:[ys,xs];
+    correct = xBigger?xs:ys;
+    wrongs=[{text:xBigger?ys:xs, why:xBigger
+              ? 'More digits doesn\'t mean bigger. '+xs+' is the same as '+xh+', which is '+(t*10)+' hundredths. '+ys+' is only '+h+' hundredths.'
+              : 'Compare them in hundredths: '+xs+' = '+xh+' is '+(t*10)+' hundredths, but '+ys+' is '+h+' hundredths, which is more.'},
+            {text:'They are equal', why:xs+' and '+ys+' are different: '+(t*10)+' hundredths compared with '+h+' hundredths.'}];
+    sol=['Write both with the same number of decimal places:', xs+' = '+xh+' → '+(t*10)+' hundredths', ys+' → '+h+' hundredths',
+         (xBigger?(t*10)+' is greater than '+h:h+' is greater than '+(t*10))+', so the greater number is '+box(correct)];
+    prompt='Which is greater: '+first[0]+' or '+first[1]+'?'; hint='Compare using the same place value.';
+  } else if(L===2){
+    var dn=pick([10,100]), n; do { n=rand(11,99); } while(n%10===0);
+    var places = dn===10?1:2, ans=(n/dn).toFixed(places);
+    correct=ans;
+    wrongs = dn===100
+      ? [{text:(n/10).toFixed(1), why:'Hundredths go <b>two</b> places after the decimal point. You only used one.'},
+         {text:(n/1000).toFixed(3), why:'That\'s thousandths (three places). '+n+'/100 is hundredths, two places.'},
+         {text:(revDigits(n)/100).toFixed(2), why:'The digits are in the wrong order. '+n+' hundredths is '+ans+'.'},
+         {text:String(n), why:'That\'s a whole number. '+n+'/100 is less than 1.'}]
+      : [{text:(n/100).toFixed(2), why:'Tenths go <b>one</b> place after the decimal point. '+n+' tenths is '+ans+'.'},
+         {text:(n/1000).toFixed(3), why:'That\'s far too small. Tenths go one place after the decimal point.'},
+         {text:(revDigits(n)/10).toFixed(1), why:'The digits are in the wrong order. '+n+' tenths is '+ans+'.'},
+         {text:n+'.0', why:'That\'s '+n+' wholes. '+n+' <b>tenths</b> is '+ans+'.'}];
+    sol=[dn===100 ? 'Hundredths means two digits after the decimal point.' : 'Tenths means one digit after the decimal point.',
+         n+' '+(dn===100?'hundredths':'tenths')+' = '+box(ans), frac(n,dn)+' = '+ans];
+    prompt='Write '+frac(n,dn)+' as a decimal.'; hint='Count the decimal places.';
+  } else if(L===3){
+    var tt=rand(1,9), hh; do { hh=rand(11,89); } while(hh%10===0);
+    var xx=tt/10, yy=hh/100, sum=xx+yy; correct=sum.toFixed(2);
+    wrongs=[{text:((tt+hh)/100).toFixed(2), why:xx.toFixed(1)+' is '+(tt*10)+' hundredths, not '+tt+'. Write it as '+xx.toFixed(2)+' and line up the decimal points.'},
+            {text:(sum/10).toFixed(3), why:'That\'s 10 times too small. Line up the decimal points and add each place.'},
+            {text:(sum*10).toFixed(1), why:'That\'s 10 times too big. Line up the decimal points.'},
+            {text:(sum+0.1).toFixed(2), why:'Close! Check your carrying, you may be one tenth too high.'}];
+    sol=['Line up the decimal points: '+xx.toFixed(1)+' = '+xx.toFixed(2),
+         (tt*10)+' hundredths + '+hh+' hundredths = '+(tt*10+hh)+' hundredths',
+         xx.toFixed(2)+' + '+yy.toFixed(2)+' = '+box(correct)];
+    prompt=xx.toFixed(1)+' + '+yy.toFixed(2)+' = ?'; hint='Line up the decimal points.';
+  } else {
+    var W=pick([1,2,3,5]), hy; do { hy=rand(11,99); } while(hy%10===0);
+    var yv=hy/100, diff=W-yv; correct=diff.toFixed(2);
+    var dh=W*100-hy;
+    wrongs=[{text:(W+yv).toFixed(2), why:'You added. The problem says subtract.'},
+            {text:(diff+0.1).toFixed(2), why:'Close! Check your regrouping. You are one tenth too high.'},
+            {text:(diff-0.1).toFixed(2), why:'Close! Check your regrouping. You are one tenth too low.'},
+            {text:(diff*10).toFixed(1), why:'Check the decimal point. The answer is less than '+W+'.'}];
+    sol=['Write '+W+' as '+W+'.00 so the places line up.',
+         W*100+' hundredths − '+hy+' hundredths = '+dh+' hundredths',
+         dh+' hundredths = '+box(correct)];
+    prompt=W+' − '+yv.toFixed(2)+' = ?'; hint='Think in hundredths.';
+  }
+  verify=function(t){ return t===correct; };
+  return {topic:'decimals', prompt:prompt, hint:hint, choices:makeChoices(correct, wrongs, null), solution:lines(sol), verify:verify, answer:correct};
+}
+
+var TOPICS = {
+  window:'Window method', decompose:'Decompose a factor', addtake:'Add / take a group',
+  placevalue:'Place value relationships', estimate:'Estimation', reasonable:'Does my answer make sense?',
+  expanded:'Expanded form', ratio:'Ratio tables', word:'Story problems', fractions:'Fractions', decimals:'Decimals'
+};
+var GENS = [
+  {id:'window',w:3,fn:genWindow},{id:'decompose',w:3,fn:genDecompose},{id:'addtake',w:2,fn:genAddTake},
+  {id:'placevalue',w:2,fn:genPlace},{id:'estimate',w:2,fn:genEstimate},{id:'reasonable',w:1,fn:genReasonable},
+  {id:'expanded',w:2,fn:genExpanded},{id:'ratio',w:1,fn:genRatio},{id:'word',w:2,fn:genWord},
+  {id:'fractions',w:1,fn:genFrac},{id:'decimals',w:1,fn:genDecimal}
+];
+var FOCUS = {
+  all:{label:'A mix of everything', ids:null},
+  window:{label:'Window method', ids:['window']},
+  decompose:{label:'Decompose a factor', ids:['decompose']},
+  addtake:{label:'Add / take a group', ids:['addtake']},
+  placevalue:{label:'Place value relationships', ids:['placevalue']},
+  estimate:{label:'Estimation', ids:['estimate','reasonable']},
+  expanded:{label:'Expanded form', ids:['expanded']},
+  word:{label:'Story problems', ids:['word']},
+  ratio:{label:'Ratio tables', ids:['ratio']},
+  fracdec:{label:'Fractions and decimals', ids:['fractions','decimals']}
+};
+window.__avaGens = GENS;
+
+/* ---------- state (today's count) and levels (kept across days) ---------- */
+var KEY = 'ava-math-v1', LKEY = 'ava-math-levels-v1';
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function blankState(){ return {date:todayStr(), solved:0, correct:0, seconds:0, topics:{}}; }
+function load(){ try{ var s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s && s.date===todayStr()) return s; }catch(e){} return blankState(); }
+var state = load();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function loadLv(){ try{ var s=JSON.parse(localStorage.getItem(LKEY)||'null'); if(s && s.t) return s; }catch(e){} return {mode:'auto', t:{}}; }
+var lv = loadLv();
+function saveLv(){ try{ localStorage.setItem(LKEY, JSON.stringify(lv)); }catch(e){} }
+function lvOf(id){ var o=lv.t[id]; if(!o){ o={l:3,s:0,m:0}; lv.t[id]=o; } return o; }
+
+var view='start', cur=null, answeredIdx=null, paused=false, focus='all', note='';
+var recentPrompts=[], lastTopic=null, running=false, tickId=null, resetArmed=false, streak=0;
+
+/* ---------- timer ---------- */
+function updateHeader(){
+  $('stat').textContent = '⭐ '+state.solved+' today · '+state.correct+' ✓';
+  $('timer').textContent = state.seconds>=DAILY_SECONDS ? '10 min ✓' : mmss(DAILY_SECONDS-state.seconds);
+  $('goalfill').style.width = Math.min(100, state.seconds/DAILY_SECONDS*100)+'%';
+  $('pauseBtn').style.display = (view==='question' && !paused) ? '' : 'none';
+}
+function startTimer(){
+  if(running) return;
+  running = true;
+  tickId = setInterval(function(){
+    state.seconds++;
+    updateHeader();
+    if(state.seconds===DAILY_SECONDS && view==='question' && !paused) renderQuestion(false);
+    if(state.seconds%5===0) save();
+  }, 1000);
+}
+function stopTimer(){ running=false; clearInterval(tickId); save(); }
+
+/* ---------- picking questions ---------- */
+function nextQuestion(){
+  var ids = FOCUS[focus].ids;
+  var pool = GENS.filter(function(g){ return !ids || ids.indexOf(g.id)>=0; });
+  var q = null, tries = 0, level = 3;
+  while(tries++<12){
+    var cands = pool.length>1 ? pool.filter(function(g){ return g.id!==lastTopic; }) : pool;
+    var total = cands.reduce(function(s,g){ return s+g.w; },0), r = Math.random()*total, g = cands[0];
+    for(var i=0;i<cands.length;i++){ r-=cands[i].w; if(r<=0){ g=cands[i]; break; } }
+    level = lv.mode==='auto' ? lvOf(g.id).l : lv.mode;
+    q = g.fn(level);
+    q.level = level;
+    if(recentPrompts.indexOf(q.prompt)<0) break;
+  }
+  recentPrompts.push(q.prompt); if(recentPrompts.length>8) recentPrompts.shift();
+  lastTopic = q.topic; q.label = TOPICS[q.topic];
+  cur = q; answeredIdx = null; note = '';
+}
+
+/* ---------- little celebrations ---------- */
+function confetti(){
+  try{
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var layer=document.createElement('div'); layer.className='confetti'; layer.setAttribute('aria-hidden','true');
+    var colors=['#ff6fb5','#8b5cf6','#2dd4bf','#ffc857','#60a5fa'];
+    for(var i=0;i<28;i++){
+      var s=document.createElement('i');
+      s.style.left=(8+Math.random()*84)+'%'; s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.25)+'s';
+      s.style.setProperty('--dx',(Math.random()*180-90)+'px'); s.style.setProperty('--rot',(Math.random()*720-360)+'deg');
+      layer.appendChild(s);
+    }
+    document.body.appendChild(layer); setTimeout(function(){ if(layer.parentNode) layer.parentNode.removeChild(layer); },1800);
+  }catch(e){}
+}
+
+/* ---------- views ---------- */
+function render(){
+  updateHeader();
+  if(view==='start') renderStart();
+  else if(view==='question') renderQuestion(false);
+  else renderSummary();
+}
+
+function renderStart(){
+  var left = DAILY_SECONDS - state.seconds;
+  var label = state.seconds===0 ? 'Start' : (left>0 ? 'Keep going ('+mmss(left)+' left)' : 'Practice some more');
+  var opts = Object.keys(FOCUS).map(function(k){ return '<option value="'+k+'"'+(k===focus?' selected':'')+'>'+esc(FOCUS[k].label)+'</option>'; }).join('');
+  var dOpts = [['auto','Auto: adjusts to me ✨'],['1','Level 1: warm-up'],['2','Level 2'],['3','Level 3'],['4','Level 4: super challenge']]
+    .map(function(o){ return '<option value="'+o[0]+'"'+(String(lv.mode)===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+  $('main').innerHTML =
+    '<div class="card center">'+
+      mascot('cheer','big-mascot')+
+      '<h1>Hi Ava! Ready for math time?</h1>'+
+      '<p class="muted">About 10 minutes. If you miss one, you\'ll see exactly why, using the same strategies you learn in class.</p>'+
+      (state.solved>0 ? '<p><b>'+state.solved+'</b> problem'+(state.solved===1?'':'s')+' so far today, <b>'+state.correct+'</b> right. ⭐</p>' : '')+
+      (state.seconds>=DAILY_SECONDS ? '<p>Today\'s 10 minutes are done! 🎉 Extra practice is a bonus.</p>' : '')+
+      '<p><label class="muted" for="focus">Practice: </label><select id="focus">'+opts+'</select></p>'+
+      '<p><label class="muted" for="diff">Challenge: </label><select id="diff">'+dOpts+'</select></p>'+
+      '<div class="actions" style="justify-content:center"><button type="button" class="btn primary" id="go">'+label+'</button>'+
+      (state.solved>0 ? '<button type="button" class="btn" id="sum">Today\'s summary</button>' : '')+'</div>'+
+    '</div>';
+  $('focus').onchange = function(){ focus = this.value; };
+  $('diff').onchange = function(){ lv.mode = this.value==='auto' ? 'auto' : Number(this.value); saveLv(); };
+  $('go').onclick = function(){ nextQuestion(); view='question'; paused=false; startTimer(); render(); };
+  var s = $('sum'); if(s) s.onclick = function(){ view='summary'; render(); };
+}
+
+var PRAISE = ['Yes!','Nice thinking!','Right!','Exactly!','You got it!','Awesome!'];
+var TALK = ['Why did you choose this strategy?','How does your model show your thinking?','How do you know your answer makes sense?'];
+var talkIdx = 0;
+
+function renderQuestion(justAnswered){
+  var m = $('main');
+  updateHeader();
+  if(paused){
+    m.innerHTML = '<div class="card center">'+mascot('think','big-mascot')+'<h2>Break time!</h2><p class="muted">The timer is stopped. Come back when you\'re ready.</p><button type="button" class="btn primary" id="resume">Resume</button></div>';
+    $('resume').onclick = function(){ paused=false; startTimer(); renderQuestion(false); updateHeader(); };
+    return;
+  }
+  var q = cur, answered = answeredIdx!==null, h = '';
+  if(state.seconds>=DAILY_SECONDS){
+    h += '<div class="banner"><span>🎉 That\'s your 10 minutes for today! Finish this one, then wrap up, or keep going if you like.</span><button type="button" class="btn" id="wrap">See today\'s summary</button></div>';
+  }
+  h += '<div class="card"><div class="chiprow"><span class="chip">'+esc(q.label)+'</span><span class="stars" title="Level '+q.level+' of 4" aria-label="Level '+q.level+' of 4">'+stars(q.level)+'</span></div>'+
+       '<div class="prompt">'+q.prompt+'</div>'+
+       (q.hint ? '<div class="hint">'+esc(q.hint)+'</div>' : '')+'<div class="choices">';
+  q.choices.forEach(function(c,i){
+    var cls = '';
+    if(answered){ if(c.correct) cls='right'; else if(i===answeredIdx) cls='wrong'; }
+    h += '<button type="button" class="choice '+cls+'" data-i="'+i+'"'+(answered?' disabled':'')+'><span class="ltr">'+'ABCD'.charAt(i)+'</span><span>'+esc(c.text)+'</span></button>';
+  });
+  h += '</div>';
+  if(answered){
+    var chosen = q.choices[answeredIdx];
+    if(chosen.correct){
+      h += '<div class="fb good" role="status">'+mascot('cheer')+'<div class="txt"><b class="t">'+PRAISE[state.solved%PRAISE.length]+(streak>=3?' 🔥 '+streak+' in a row!':'')+'</b>Look at the strategy to see it another way.</div></div>';
+    } else {
+      h += '<div class="fb oops" role="status">'+mascot('think')+'<div class="txt"><b class="t">Not quite, and that\'s okay! Mistakes help your brain grow.</b>'+chosen.why+'</div></div>';
+    }
+    if(note) h += '<div class="levelup">'+note+'</div>';
+    h += '<div class="strategy"><h3>📒 Here\'s the strategy</h3>'+q.solution+'</div>';
+    h += '<div class="talk"><b>Talk it over:</b> '+TALK[talkIdx%TALK.length]+'</div>';
+    h += '<div class="actions"><button type="button" class="btn primary" id="next">Next problem →</button></div>';
+  }
+  h += '</div>';
+  m.innerHTML = h;
+  var wrap = $('wrap'); if(wrap) wrap.onclick = function(){ stopTimer(); view='summary'; render(); };
+  var nx = $('next');
+  if(nx){
+    nx.onclick = function(){ talkIdx++; nextQuestion(); renderQuestion(false); window.scrollTo(0,0); };
+    if(justAnswered) nx.focus({preventScroll:true});
+  }
+}
+
+function answer(i){
+  if(answeredIdx!==null || !cur) return;
+  answeredIdx = i;
+  var ok = cur.choices[i].correct;
+  state.solved++; if(ok) state.correct++;
+  streak = ok ? streak+1 : 0;
+  var t = state.topics[cur.topic] || {n:0,c:0};
+  t.n++; if(ok) t.c++; state.topics[cur.topic] = t;
+  note = '';
+  if(lv.mode==='auto'){
+    var o = lvOf(cur.topic);
+    if(ok){ o.s++; if(o.s>=2){ if(o.l<4){ o.l++; note='🚀 Level up! '+TOPICS[cur.topic]+' questions just got a little tougher.'; } o.s=0; o.m=0; } }
+    else { o.s=0; o.m++; if(o.m>=2){ if(o.l>1) o.l--; o.m=0; } }
+    saveLv();
+  }
+  save(); updateHeader(); renderQuestion(true);
+  if(ok) confetti();
+}
+
+function renderSummary(){
+  stopTimer();
+  var acc = state.solved ? Math.round(100*state.correct/state.solved) : 0;
+  var keys = Object.keys(state.topics);
+  var again = keys.filter(function(k){ return state.topics[k].c < state.topics[k].n; });
+  var list = keys.map(function(k){
+    var t=state.topics[k];
+    return '<li><span>'+esc(TOPICS[k]||k)+'</span><span>'+t.c+' of '+t.n+' · <span class="stars">'+stars(lvOf(k).l)+'</span></span></li>';
+  }).join('');
+  $('main').innerHTML =
+    '<div class="card center">'+
+      mascot('cheer','big-mascot')+
+      '<h2>Great work today, Ava!</h2>'+
+      '<div class="stats-grid"><div class="stat"><div class="num">'+state.solved+'</div><div class="lab">problems</div></div>'+
+      '<div class="stat"><div class="num">'+state.correct+'</div><div class="lab">right</div></div>'+
+      '<div class="stat"><div class="num">'+mmss(state.seconds)+'</div><div class="lab">minutes</div></div></div>'+
+      (state.solved ? '<p class="muted">'+acc+'% right today.</p>' : '<p class="muted">No problems yet today.</p>')+
+      (list ? '<ul class="topics">'+list+'</ul>' : '')+
+      (again.length ? '<p class="muted">Worth another look: '+again.map(function(k){ return esc(TOPICS[k]||k); }).join(', ')+'</p>' : '')+
+      '<div class="actions" style="justify-content:center"><button type="button" class="btn primary" id="more">Keep practicing</button><button type="button" class="btn" id="home">Back</button></div>'+
+      '<p><button type="button" class="linkbtn" id="reset">Reset today (grown-ups)</button> · <button type="button" class="linkbtn" id="resetlv">Reset levels</button></p>'+
+    '</div>';
+  $('more').onclick = function(){ nextQuestion(); view='question'; paused=false; startTimer(); render(); };
+  $('home').onclick = function(){ view='start'; render(); };
+  $('reset').onclick = function(){
+    if(!resetArmed){ resetArmed=true; this.textContent='Tap again to clear today\'s count and timer'; return; }
+    resetArmed=false; state=blankState(); save(); view='start'; cur=null; render();
+  };
+  $('resetlv').onclick = function(){ lv={mode:lv.mode,t:{}}; saveLv(); this.textContent='Levels reset'; };
+}
+
+/* ---------- events ---------- */
+$('main').addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('.choice') : null;
+  if(b && !b.disabled) answer(Number(b.getAttribute('data-i')));
+});
+$('pauseBtn').addEventListener('click', function(){
+  if(view!=='question') return;
+  paused = true; stopTimer(); renderQuestion(false);
+});
+document.addEventListener('keydown', function(e){
+  if(view!=='question' || paused || answeredIdx!==null || !cur) return;
+  var k = e.key, idx = -1;
+  if(k>='1' && k<='4') idx = Number(k)-1;
+  else if(k.length===1 && 'abcd'.indexOf(k.toLowerCase())>=0) idx = 'abcd'.indexOf(k.toLowerCase());
+  if(idx>=0 && idx<cur.choices.length) answer(idx);
+});
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden && running && view==='question' && !paused){ paused = true; stopTimer(); renderQuestion(false); }
+});
+window.addEventListener('beforeunload', save);
+
+render();
+})();
+</script>
+</body>
+</html>
